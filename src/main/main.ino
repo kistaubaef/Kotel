@@ -143,10 +143,9 @@ void loop() {
     if (currentMillis - previousMillis > INTERVAL) {
         previousMillis = currentMillis;
         sensor.requestTemp();
-        delay(20);
-        temperature = sensor.getTemp();   
+        delay(20);  
     }
-
+    temperature = sensor.getTemp();
     if (temperature < LOW_BOUND_TEMPERATURE && !kotelStatus && !op_mode) {
         kotelStatus = HIGH;
         digitalWrite(KOTEL, HIGH);
