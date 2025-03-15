@@ -14,7 +14,7 @@ FastBot bot(BOT_TOKEN);
 #include <microDS18B20.h>
 MicroDS18B20<TEMP_SENSOR> sensor;
 
-unsigned long previousMillis = 0;
+long previousMillis = 0;
 bool kotelStatus = 0;
 bool boilerStatus = 0;
 bool condStatus = 0;
