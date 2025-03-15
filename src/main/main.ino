@@ -22,7 +22,19 @@ bool svetStatus = HIGH;  // Свет включен по умолчанию
 float temperature = 0;
 bool op_mode = 0;
 
+
+
+String ktState;
+String svetState;
+String boilerState;
+String condState;
+String opState;
+String repl;
+
 void setup() {
+    pinMode(LED_BUILTIN, OUTPUT); 
+    delay(5);
+    digitalWrite(LED_BUILTIN, LOW);
     connectWiFi();
     bot.setChatID(CHAT_ID);
     bot.attach(newMsg);
@@ -37,11 +49,11 @@ void setup() {
     digitalWrite(BOILER, LOW);  // Бойлер выключен
     digitalWrite(COND, LOW);    // Кондиционер выключен
 
-    bot.showMenu("Svet OFF \t Svet ON \n"
+    bot.showMenu("Svet ON \t Svet OFF \n"
                  "Kotel ON \t Kotel OFF \n"
                  "Boiler ON \t Boiler OFF \n"
                  "Cond ON \t Cond OFF \n"
-                 "auto \t manual \n Temp");
+                 "auto_2 \t manual \t sost");
     sensor.requestTemp();
 }
 
@@ -52,62 +64,75 @@ void newMsg(FB_msg& msg) {
         svetStatus = HIGH;
         bot.sendMessage("Svet ON", CHAT_ID);
     }
-    if (msg.text == "Svet OFF") {
+    else if (msg.text == "Svet OFF") {
         digitalWrite(SVET, LOW);
         svetStatus = LOW;
         bot.sendMessage("Svet OFF", CHAT_ID);
     }
 
-    if (msg.text == "Kotel ON" && op_mode) {
+    else if (msg.text == "Kotel ON" && op_mode) {
         digitalWrite(KOTEL, HIGH);
         kotelStatus = HIGH;
         bot.sendMessage("Kotel ON", CHAT_ID);
     }
-    if (msg.text == "Kotel OFF" && op_mode) {
+    else if (msg.text == "Kotel OFF" && op_mode) {
         digitalWrite(KOTEL, LOW);
         kotelStatus = LOW;
         bot.sendMessage("Kotel OFF", CHAT_ID);
     }
 
-    if (msg.text == "Boiler ON") {
+    else if (msg.text == "Boiler ON") {
         digitalWrite(BOILER, HIGH);
         boilerStatus = HIGH;
         bot.sendMessage("Boiler ON", CHAT_ID);
     }
-    if (msg.text == "Boiler OFF") {
+    else if (msg.text == "Boiler OFF") {
         digitalWrite(BOILER, LOW);
         boilerStatus = LOW;
         bot.sendMessage("Boiler OFF", CHAT_ID);
     }
 
-    if (msg.text == "Cond ON") {
+    else if (msg.text == "Cond ON") {
         digitalWrite(COND, HIGH);
         condStatus = HIGH;
         bot.sendMessage("Cond ON", CHAT_ID);
     }
-    if (msg.text == "Cond OFF") {
+    else if (msg.text == "Cond OFF") {
         digitalWrite(COND, LOW);
         condStatus = LOW;
         bot.sendMessage("Cond OFF", CHAT_ID);
     }
 
-    if (msg.text == "auto") {
+    else if (msg.text == "auto_2") {
         op_mode = 0;
-        bot.sendMessage("auto mode", CHAT_ID);
+        bot.sendMessage("auto_2 mode", CHAT_ID);
     }
 
-    if (msg.text == "manual") {
+    else if (msg.text == "manual") {
         op_mode = 1;
         bot.sendMessage("manual mode", CHAT_ID);
     }
+
     
-    if (msg.text == "Temp") {
+    else if (msg.text == "sost") {
         sensor.requestTemp();
         delay(20);
-        String ktState = kotelStatus ? "ON" : "OFF";
-        String repl = String(sensor.getTemp()) + " °C\nKotel " + ktState;
+        ktState = kotelStatus ? "ON" : "OFF";
+        svetState = svetStatus ? "ON" : "OFF";
+        boilerState = boilerStatus ? "ON" : "OFF";
+        condState = condStatus ? "ON" : "OFF";
+        opState = (op_mode == 1 ? "manual" : "auto_2");
+        repl = String(sensor.getTemp()) + " °C"
+               + '\n' + "Kotel " + ktState
+               + '\n' + "Svet " + svetState
+               + '\n' + "Boiler " + boilerState
+               + '\n' + "Cond " + condState
+               + '\n' + opState + " mode";
         bot.sendMessage(repl, CHAT_ID);
-    }
+  }
+
+    else if (msg.OTA && msg.text == "update") bot.update();
+
 
 }
 
@@ -124,13 +149,13 @@ void loop() {
         if (temperature < LOW_BOUND_TEMPERATURE && !kotelStatus && !op_mode) {
             kotelStatus = HIGH;
             digitalWrite(KOTEL, HIGH);
-            bot.sendMessage("Kotel auto ON", CHAT_ID);
+            bot.sendMessage("Kotel auto_2 ON", CHAT_ID);
             bot.sendMessage(String(temperature) + " °C", CHAT_ID);
         }
         if (temperature > HIGH_BOUND_TEMPERATURE && kotelStatus && !op_mode) {
             kotelStatus = LOW;
             digitalWrite(KOTEL, LOW);
-            bot.sendMessage("Kotel auto OFF", CHAT_ID);
+            bot.sendMessage("Kotel auto_2 OFF", CHAT_ID);
             bot.sendMessage(String(temperature) + " °C", CHAT_ID);
         }
     }
