@@ -1,13 +1,11 @@
-#define WIFI_SSID "YOUR_WIFI_SSID"
-#define WIFI_PASS "YOUR_WIFI_PASSWORD"
-#define BOT_TOKEN "YOUR_BOT_TOKEN"
-#define CHAT_ID "YOUR_CHAT_ID"
+#include "config.h"
+
 #define KOTEL D6
 #define RELAY2 D8
 #define TEMP_SENSOR D3
-#define INTERVAL 300000 // 5 minute interval
-#define LOW_BOUND_TEMPERATURE 2
-#define HIGH_BOUND_TEMPERATURE 4
+#define INTERVAL 300000
+#define LOW_BOUND_TEMPERATURE 1
+#define HIGH_BOUND_TEMPERATURE 3
 
 
 #include <FastBot.h>
@@ -75,27 +73,26 @@ void newMsg(FB_msg& msg) {
 void loop() {
     bot.tick();
     unsigned long currentMillis = millis();
-    if(currentMillis - previousMillis > INTERVAL) {
+    if (currentMillis - previousMillis > INTERVAL) {
         previousMillis = currentMillis;  
         sensor.requestTemp();
         delay(20);
+        temperature = sensor.getTemp();
+    
+        if (temperature < LOW_BOUND_TEMPERATURE && !kotelStatus && !op_mode) {
+            kotelStatus = HIGH;
+            digitalWrite(KOTEL, HIGH);
+            bot.sendMessage("Kotel auto ON", CHAT_ID);
+            bot.sendMessage(String(temperature) + " °C", CHAT_ID);
+        }
+        if (temperature > HIGH_BOUND_TEMPERATURE && kotelStatus && !op_mode) {
+            kotelStatus = LOW;
+            digitalWrite(KOTEL, LOW);
+            bot.sendMessage("Kotel auto OFF", CHAT_ID);
+            bot.sendMessage(String(temperature) + " °C", CHAT_ID);
+        }
     }
-    temperature = sensor.getTemp();
-    if (temperature < LOW_BOUND_TEMPERATURE && !kotelStatus && !op_mode)
-    {
-      kotelStatus = HIGH;
-      digitalWrite(KOTEL, HIGH);
-      bot.sendMessage("Kotel auto ON", CHAT_ID);
-      bot.sendMessage(String(temperature) + " °C", CHAT_ID);
-    }
-    if (temperature > HIGH_BOUND_TEMPERATURE && kotelStatus && !op_mode)
-    {
-      kotelStatus = LOW;
-      digitalWrite(KOTEL, LOW);
-      bot.sendMessage("Kotel auto OFF", CHAT_ID);
-      bot.sendMessage(String(temperature) + " °C", CHAT_ID);
-
-    }
+    
        
 }
 
