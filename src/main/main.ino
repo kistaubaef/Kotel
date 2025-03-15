@@ -49,8 +49,8 @@ void setup() {
     digitalWrite(BOILER, LOW);  // Бойлер выключен
     digitalWrite(COND, LOW);    // Кондиционер выключен
 
-    bot.showMenu("Svet ON \t Svet OFF \n"
-                 "Kotel ON \t Kotel OFF \n"
+    bot.showMenu("Kotel ON \t Kotel OFF \n"
+                 "Svet ON \t Svet OFF \n"
                  "Boiler ON \t Boiler OFF \n"
                  "Cond ON \t Cond OFF \n"
                  "auto_2 \t manual \t sost");
