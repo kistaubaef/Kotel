@@ -5,7 +5,7 @@
 #define BOILER D7     // Бойлер
 #define COND D8       // Кондиционер
 #define TEMP_SENSOR D3
-#define INTERVAL 300000
+#define INTERVAL 180000
 #define LOW_BOUND_TEMPERATURE 1
 #define HIGH_BOUND_TEMPERATURE 3
 
